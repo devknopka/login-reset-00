@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import svgPaths from "@/imports/СброситьПароль/svg-4xg3nwgtem";
 import imgSupport from "@/imports/ПозвониНам/3ec10e40865ab11b629c4870121e5e36f1885f5d.png";
 import imgSuccess from "@/imports/Успех/6ad5ccc270332ceaee061c0e45beb79b7fc3d0de.png";
@@ -15,6 +15,36 @@ type Screen =
   | "success";
 
 const FT = "'Futura Pt', sans-serif";
+
+/* ── countdown hook ── */
+function useCountdown(seconds: number) {
+  const [left, setLeft] = useState(seconds);
+  const reset = useCallback(() => setLeft(seconds), [seconds]);
+
+  useEffect(() => {
+    if (left <= 0) return;
+    const id = setTimeout(() => setLeft(l => l - 1), 1000);
+    return () => clearTimeout(id);
+  }, [left]);
+
+  const fmt = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
+  return { left, fmt, reset };
+}
+
+function ResendBtn({ onResend }: { onResend: () => void }) {
+  const { left, fmt, reset } = useCountdown(60);
+  const handle = () => { reset(); onResend(); };
+
+  if (left > 0) {
+    return (
+      <p className="text-[18px] leading-[22px] text-center"
+        style={{ fontFamily: FT, fontWeight: 400, color: "#a0a0a0" }}>
+        Отправить повторно через {fmt}
+      </p>
+    );
+  }
+  return <LinkBtn label="Отправить повторно" onClick={handle} />;
+}
 
 /* ── back arrow SVG ── */
 function BackArrow() {
@@ -330,7 +360,7 @@ function CodePhoneScreen({ go }: { go: (s: Screen) => void }) {
         <div className="flex flex-col gap-[36px] items-center w-full mt-6">
           <BodyText>{"Введите код.\nМы отправили его на номер\n+7 904 386 56 56"}</BodyText>
           <CodeInput error={error} onComplete={handleComplete} />
-          <LinkBtn label="Отправить повторно" />
+          <ResendBtn onResend={() => {}} />
         </div>
       </Card>
       <LoginLink go={go} />
@@ -355,7 +385,7 @@ function CodeEmailScreen({ go }: { go: (s: Screen) => void }) {
           <BodyText>{"Введите код.\nМы отправили его на почту\nka***********a@gmail.com"}</BodyText>
           <CodeInput error={error} onComplete={handleComplete} />
           <div className="flex flex-col gap-[28px] items-center">
-            <LinkBtn label="Отправить повторно" />
+            <ResendBtn onResend={() => {}} />
             <LinkBtn label="Нет доступа к почте" onClick={() => go("call-us")} />
           </div>
         </div>
