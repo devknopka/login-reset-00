@@ -266,6 +266,7 @@ function CodeInput({ error, onComplete }: { error?: boolean; onComplete: (code: 
 
 function LoginScreen({ go }: { go: (s: Screen) => void }) {
   const [tab, setTab] = useState<"phone" | "login">("login");
+  const [phone, setPhone] = useState("+7");
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
 
@@ -287,13 +288,37 @@ function LoginScreen({ go }: { go: (s: Screen) => void }) {
               </button>
             ))}
           </div>
-          {/* fields */}
-          <div className="flex flex-col gap-[12px] w-full">
-            <TextInput placeholder={tab === "phone" ? "Телефон" : "Логин"} value={login} onChange={setLogin} />
-            {tab === "login" && <PasswordInput placeholder="Пароль" value={password} onChange={setPassword} />}
-          </div>
-          <Btn label="Продолжить" onClick={() => go("success")} />
-          <LinkBtn label="Забыли пароль?" onClick={() => go("reset-email")} />
+
+          {tab === "phone" ? (
+            <div className="flex flex-col gap-[28px] items-center w-full">
+              <BodyText>Введите номер телефона,{"\n"}привязанный к вашей учётной записи</BodyText>
+              <div className="flex flex-col gap-[6px] w-full">
+                <p className="text-[#8c8c8c] text-[14px] leading-[18px]"
+                  style={{ fontFamily: FT, fontWeight: 400 }}>Телефон</p>
+                <div className="bg-white h-[40px] rounded-[12px] w-full border border-[#ddd] flex items-center px-3">
+                  <input
+                    className="flex-1 text-[18px] leading-[22px] text-[#2d2d2d] outline-none bg-transparent"
+                    style={{ fontFamily: FT, fontWeight: 400 }}
+                    type="tel" value={phone}
+                    onChange={e => {
+                      const v = e.target.value;
+                      if (!v.startsWith("+7")) setPhone("+7");
+                      else setPhone(v);
+                    }} />
+                </div>
+              </div>
+              <Btn label="Продолжить" onClick={() => go("success")} />
+            </div>
+          ) : (
+            <div className="flex flex-col gap-[28px] items-center w-full">
+              <div className="flex flex-col gap-[12px] w-full">
+                <TextInput placeholder="Логин или почта" value={login} onChange={setLogin} />
+                <PasswordInput placeholder="Пароль от аккаунта" value={password} onChange={setPassword} />
+              </div>
+              <Btn label="Продолжить" onClick={() => go("success")} />
+              <LinkBtn label="Забыли пароль?" onClick={() => go("reset-email")} />
+            </div>
+          )}
         </div>
       </Card>
       <p className="text-[#00a0eb] text-[20px] text-center cursor-pointer"
@@ -404,8 +429,9 @@ function CallUsScreen({ go }: { go: (s: Screen) => void }) {
         <div className="flex flex-col gap-[16px] items-center w-full mt-4">
           <img src={imgSupport} alt="Поддержка" className="w-[238px] h-[165px] object-contain" />
           <div className="flex flex-col gap-[12px] items-center">
-            <p className="text-[#2d2d2d] text-[20px] text-center leading-[22px]"
-              style={{ fontFamily: FT, fontWeight: 600 }}>8 800 500 10 24</p>
+            <a href="tel:88005001024"
+              className="text-[#00a0eb] text-[20px] text-center leading-[22px] hover:text-[#33b8f5] transition-colors"
+              style={{ fontFamily: FT, fontWeight: 600 }}>8 800 500 10 24</a>
             <BodyText>Позвоните нам, чтобы восстановить пароль.</BodyText>
           </div>
         </div>
